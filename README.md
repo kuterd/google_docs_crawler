@@ -7,7 +7,7 @@ then we find other docs that it links to, and so on, until the `--max-depth` is 
 
 
 ```
-usage: main.py [-h] [--max-depth MAX_DEPTH] [-o OUTPUT] [--allow-speculative-title-detection ALLOW_SPECULATIVE_TITLE_DETECTION] [--download-folder DOWNLOAD_FOLDER] S [S ...]
+usage: main.py [-h] [--max-depth MAX_DEPTH] [-o OUTPUT] [--allow-speculative-title-detection ALLOW_SPECULATIVE_TITLE_DETECTION] [--download-folder DOWNLOAD_FOLDER] [--max-workers MAX_WORKERS] S [S ...]
 
 A crawler for Google Docs. For a given list of seed documents, this crawler will BFS crawl all linked documents recursively and attempt to find the titles of the documents. Currently only publicly available documents are supported.
 
@@ -24,4 +24,6 @@ options:
                         Allow speculative detection of document titles
   --download-folder DOWNLOAD_FOLDER
                         If specified, will save the html contents to a folder
+  --max-workers MAX_WORKERS
+                        Maximum number of worker threads to use.
 ```
