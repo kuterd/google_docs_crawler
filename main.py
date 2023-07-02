@@ -1,4 +1,4 @@
-program_desc  = """
+program_desc = """
     A crawler for Google Docs.
 
     For a given list of seed documents, this crawler will BFS crawl all linked documents recursively and
@@ -19,11 +19,28 @@ import os
 import string
 
 parser = ArgumentParser(description=program_desc)
-parser.add_argument("seeds", metavar="S", nargs="+", help="Seed documents to start from")
-parser.add_argument("--max-depth", type=int, default=sys.maxsize, help="Maximum depth that the crawler will reach")
+parser.add_argument(
+    "seeds", metavar="S", nargs="+", help="Seed documents to start from"
+)
+parser.add_argument(
+    "--max-depth",
+    type=int,
+    default=sys.maxsize,
+    help="Maximum depth that the crawler will reach",
+)
 parser.add_argument("-o", "--output", default="report.csv", help="CSV report file"),
-parser.add_argument("--allow-speculative-title-detection", type=bool, default=True, help="Allow speculative detection of document titles")
-parser.add_argument("--download-folder", type=str, default=None, help="If specified will download the html versions of documents to a folder") 
+parser.add_argument(
+    "--allow-speculative-title-detection",
+    type=bool,
+    default=True,
+    help="Allow speculative detection of document titles",
+)
+parser.add_argument(
+    "--download-folder",
+    type=str,
+    default=None,
+    help="If specified will download the html versions of documents to a folder",
+)
 
 args = parser.parse_args()
 
@@ -36,12 +53,17 @@ session = requests.Session()
 """
     For a given Google docs document id get the url for html export.
 """
+
+
 def html_url_from_id(did):
     return f"https://docs.google.com/feeds/download/documents/export/Export?id={did}&exportFormat=html"
+
 
 """
     Remove the Google redirect.
 """
+
+
 def un_google_url(url):
     parsed = urlparse(url)
     if parsed.hostname != "www.google.com":
@@ -55,15 +77,20 @@ def un_google_url(url):
 """
     Extract the document id from a document link.
 """
+
+
 def document_id_from_url(url):
     match = re.match(DOCS_REGEX, url)
     if match == None:
         return None
-    return match.group(1) 
+    return match.group(1)
+
 
 """
     Fetch the html contents of a document given a document id.
 """
+
+
 def fetch_document_by_id(did):
     response = session.get(html_url_from_id(did), allow_redirects=False)
     if response.status_code != 200:
@@ -71,35 +98,42 @@ def fetch_document_by_id(did):
 
     return response.text
 
+
 """
     Attempt to extract the document id from the document html dom.
 """
+
+
 def find_document_title(dom):
     element = dom.find(class_="title")
     if element:
         return element.get_text()
-  
-    if not args.allow_speculative_title_detection: 
+
+    if not args.allow_speculative_title_detection:
         return None
 
     element = dom.find("h1")
     if element:
         return element.get_text()
-    
+
     element = dom.find("h2")
     if element:
         return element.get_text()
-    
+
     return None
+
 
 def title_slug(title):
     title = title.lower()
     title = title.replace(" ", "-")
     return re.sub("[^" + string.ascii_letters + "-]", "", title)
 
+
 """
     Extract and un google links inside a dom.
 """
+
+
 def find_links(dom):
     anchors = dom.find_all("a")
     result = []
@@ -125,6 +159,7 @@ class Crawler:
     """
         Expand the BFS search.
     """
+
     def expand(self):
         print(len(self.to_explore), "documents to search")
         found = set()
@@ -139,15 +174,17 @@ class Crawler:
                 title = title if title else "No Title"
 
                 print("Document title:", title)
-                #print("slug", title_slug(title))
+                # print("slug", title_slug(title))
 
                 if args.download_folder:
-                    result = os.path.join(args.download_folder, title_slug(title) + ".html")
+                    result = os.path.join(
+                        args.download_folder, title_slug(title) + ".html"
+                    )
                     file = open(result, "w")
                     file.write(contents)
                     file.close()
 
-                self.results.append((title, DOCS_BASE + did)) 
+                self.results.append((title, DOCS_BASE + did))
 
                 links = find_links(dom)
                 for link in links:
@@ -162,12 +199,14 @@ class Crawler:
     """
         Write the report as a csv file.
     """
+
     def write_report(self, filename):
         result_file = open(filename, "w")
         writer = csv.writer(result_file)
         writer.writerow(["title", "link"])
         for result in crawler.results:
             writer.writerow(result)
+
 
 crawler = Crawler(args.seeds)
 
