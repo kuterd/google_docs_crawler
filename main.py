@@ -178,7 +178,7 @@ class Crawler:
 
                 if args.download_folder:
                     result = os.path.join(
-                        args.download_folder, title_slug(title) + ".html"
+                        args.download_folder, title_slug(title) + f"_{did}.html"
                     )
                     file = open(result, "w")
                     file.write(contents)
