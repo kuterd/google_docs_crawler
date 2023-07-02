@@ -39,7 +39,7 @@ parser.add_argument(
     "--download-folder",
     type=str,
     default=None,
-    help="If specified will download the html versions of documents to a folder",
+    help="If specified, will save the html contents to a folder",
 )
 
 args = parser.parse_args()
